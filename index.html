@@ -508,7 +508,7 @@ function classify(t,cl){
   if(per(t,3))return['legendary','Тройной повтор'];
   if(per(t,2))return['legendary','Парный повтор'];
   const cntD={};for(const c of t)cntD[c]=(cntD[c]||0)+1;
-  if(Math.max(...Object.values(cntD))===t.length-1)return['epic','Почти все одинаковые'];
+  if(Math.max(...Object.values(cntD))===t.length-1)return['legendary','Почти все одинаковые'];
   if(/^([1-9])\1\1[0][0]\1\1$/.test(h))return['epic','Красивая комбинация'];
   if(h.slice(3)==='0000')return['epic','Круглый номер'];
   if(asc(h))return['epic','Полная лесенка'];
@@ -549,7 +549,7 @@ const CAND={
  },
  epic:()=>{
   let t=ri(0,5);const x=ri(1,9),s=ri(0,3),k=ri(0,3);
-  if(t===5&&Math.random()<.65)t=ri(0,4); // «почти все одинаковые» встречаются реже
+  if(t===5)t=ri(0,4); // «почти все одинаковые» теперь легендарные, см. CAND.legendary
   if(t===0)return code()+`${x}${x}${x}00${x}${x}`;
   if(t===1)return code()+nd(3)+'0000';
   if(t===2)return code()+Array.from({length:7},(_,i)=>s+i).join('');
@@ -561,7 +561,8 @@ const CAND={
   return arr.join('');
  },
  legendary:()=>{
-  const l=CT[S.cty].cl+7,q=ri(0,9),x=ri(0,9);
+  const l=CT[S.cty].cl+7,q=ri(0,10),x=ri(0,9);
+  if(q===10){const d=ri(1,9),arr=Array(l).fill(d),pos=ri(0,l-1);let o=ri(0,9);if(o===d)o=(d+1)%10;arr[pos]=o;return arr.join('')}
   if(q<2)return code()+String(x).repeat(7);
   if(q<5){const pool=[ri(1,9),ri(0,9),ri(0,9)],p=String(pool[0])+Array.from({length:Math.ceil(l/2)-1},()=>pick(pool)).join('');return p+[...p].reverse().slice(l%2).join('')}
   if(q<7){const p=ri(1,9)+nd(4);return(p+p).slice(0,l)}
@@ -732,18 +733,46 @@ const save=()=>{S.ts=Date.now();try{const d=JSON.stringify(S);localStorage.setIt
 const $=id=>document.getElementById(id);
 
 /* ================= ЗВУК (Web Audio) ================= */
-let AC=null,audioOK=false;
-document.addEventListener('pointerdown',()=>{audioOK=true;ac()},{passive:true});
-function ac(){if(!audioOK)return null;if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}if(AC&&AC.state==='suspended')AC.resume();return AC}
+let AC=null,audioOK=false,master=null;
+/* создаём и «будим» аудио внутри жеста пользователя (иначе браузеры, особенно iOS/Safari, блокируют звук) */
+function unlockAudio(){
+  audioOK=true;const c=ac();
+  try{if(c&&!unlockAudio.done){const b=c.createBuffer(1,1,22050),sn=c.createBufferSource();sn.buffer=b;sn.connect(c.destination);sn.start(0);unlockAudio.done=1}}catch(e){}
+}
+['pointerdown','touchstart','touchend','click','keydown'].forEach(ev=>document.addEventListener(ev,unlockAudio,{passive:true}));
+function ac(){
+  if(!audioOK)return null;
+  if(!AC){
+    try{
+      AC=new (window.AudioContext||window.webkitAudioContext)();
+      // общая цепочка: компрессор (чтобы наложение звуков не хрипело) и мастер-громкость
+      const comp=AC.createDynamicsCompressor();comp.threshold.value=-14;comp.ratio.value=6;
+      master=AC.createGain();master.gain.value=1.6;
+      master.connect(comp);comp.connect(AC.destination);
+    }catch(e){AC=null;return null}
+  }
+  if(AC.state!=='running'){try{AC.resume()}catch(e){}}
+  return AC;
+}
+// вернулись на вкладку или в приложение — звук мог быть приостановлен системой
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&AC&&AC.state!=='running'){try{AC.resume()}catch(e){}}});
+window.addEventListener('focus',()=>{if(AC&&AC.state!=='running'){try{AC.resume()}catch(e){}}});
 function tone(fr,d,type,v,when,slide){
   if(!S.snd)return;const c=ac();if(!c)return;
-  try{
-    const t=c.currentTime+(when||0),o=c.createOscillator(),g=c.createGain();
-    o.type=type||'square';o.frequency.setValueAtTime(fr,t);
-    if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+d);
-    g.gain.setValueAtTime(v||.06,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);
-    o.connect(g).connect(c.destination);o.start(t);o.stop(t+d+.02);
-  }catch(e){}
+  const play=()=>{
+    try{
+      const t=c.currentTime+(when||0),o=c.createOscillator(),g=c.createGain(),vv=v||.06;
+      o.type=type||'square';o.frequency.setValueAtTime(fr,t);
+      if(slide)o.frequency.exponentialRampToValueAtTime(slide,t+d);
+      // короткая атака убирает щелчок в начале звука, затем плавное затухание
+      g.gain.setValueAtTime(.0001,t);
+      g.gain.linearRampToValueAtTime(vv,t+Math.min(.008,d/3));
+      g.gain.exponentialRampToValueAtTime(.0001,t+d);
+      o.connect(g);g.connect(master||c.destination);o.start(t);o.stop(t+d+.03);
+    }catch(e){}
+  };
+  if(c.state==='running')play();
+  else{try{c.resume().then(play).catch(()=>{})}catch(e){}}
 }
 const sfx={
  tick:()=>tone(1400,.03,'square',.025),
@@ -753,6 +782,8 @@ const sfx={
  err:()=>tone(160,.18,'sawtooth',.08),
  ach:()=>{[880,1108,1318,1760].forEach((x,i)=>tone(x,.14,'triangle',.07,i*.09))},
  lvl:()=>{[523,659,784,1046].forEach((x,i)=>tone(x,.12,'square',.06,i*.08))},
+ common:()=>{tone(420,.06,'triangle',.08,0,300);tone(620,.07,'triangle',.05,.04)},
+ uncommon:()=>{tone(560,.08,'triangle',.08);tone(840,.1,'triangle',.07,.07)},
  rare:()=>{tone(660,.1,'triangle',.07);tone(990,.16,'triangle',.07,.1)},
  epic:()=>{[523,659,784].forEach((x,i)=>tone(x,.13,'triangle',.08,i*.09))},
  legendary:()=>{[392,523,659,784,1046].forEach((x,i)=>tone(x,.16,'triangle',.09,i*.1))},
@@ -975,7 +1006,7 @@ function drop(){
     c.className='card show '+r.k+(r.k==='mythic'?' legendary':'')+(s.crit?' crit':'');
     c.style.setProperty('--c',r.c);
     c.innerHTML=`<div class="top"><div class="chip"></div><span class="tag">${r.n}</span></div><div class="op">${CT[s.c].fl} ${esc(s.op)}</div><div class="num">${esc(s.num)}</div><div class="cat">${esc(res.cat)}</div><div class="bty">Красота: ${bStars(s.bt)} <span>${s.bt}/100</span></div><div class="price">${f(s.price)} ₽${s.crit?'<span class="cr">⚡ КРИТ ×10</span>':''}</div><div class="note">${esc(res.note)}</div>`;
-    if(!pre){tierFx(r.k);if(FX[r.k])sfx[r.k]()}
+    if(!pre){tierFx(r.k);if(sfx[r.k])sfx[r.k]()}
     renderBal();if($('inv').classList.contains('open'))renderInv();renderCombo();
     checkAch();
   };
@@ -1123,7 +1154,7 @@ function renderScr(){
     return `<div class="row" style="--c:${mx?'#555':uc.cur==='usd'?'#3ddc84':'#ffb020'}"><div class="rw"><div class="rn">${u.n} <span class="lv">ур. ${lv}/${u.max}</span></div><div class="rs">${u.d(lv)}</div><div class="upSegs" title="${curHint}">${segs}</div><div class="upCur">${curHint}</div></div><button data-u="${u.k}" data-cur="${mx?'rub':uc.cur}" data-need="${mx?0:uc.amt}"${mx?' data-max="1" disabled':S[uc.cur]>=uc.amt?'':' disabled'}>${mx?'Максимум':f(uc.amt)+' '+sym(uc.cur)}</button></div>`;
   }).join('');
 }
-const DEXR={'Все цифры одинаковые':'mythic','8-800: семь одинаковых':'mythic','Полная гамма':'mythic','Обратная гамма':'mythic','Золотой номер 8-800':'legendary','Золотой 8-800 лесенка':'legendary','Золотая лесенка':'legendary','Семёрки с нулями':'legendary','Семь нулей':'legendary','Семь семёрок':'legendary','Семь одинаковых':'legendary','Идеальное зеркало':'legendary','Двойной повтор':'legendary','Тройной повтор':'legendary','Парный повтор':'legendary','Почти все одинаковые':'epic','Красивая комбинация':'epic','Круглый номер':'epic','Полная лесенка':'epic','Шесть подряд':'epic','Пять подряд':'epic','Четыре подряд':'epic','Зеркальные цифры':'rare','Полузеркало':'rare','Одинаковые блоки':'rare','Двойная пара':'rare','Две тройки':'rare','Тройной код':'uncommon','Двойной код':'uncommon','Семёрки в конце':'uncommon','Три нуля в конце':'uncommon','Тройка цифр':'uncommon','Пары подряд':'uncommon','Лесенка в конце':'uncommon','Обратная лесенка в конце':'uncommon','Год в конце':'uncommon','Обычный номер':'common','Секретный номер':'mythic'};
+const DEXR={'Все цифры одинаковые':'mythic','8-800: семь одинаковых':'mythic','Полная гамма':'mythic','Обратная гамма':'mythic','Золотой номер 8-800':'legendary','Золотой 8-800 лесенка':'legendary','Золотая лесенка':'legendary','Семёрки с нулями':'legendary','Семь нулей':'legendary','Семь семёрок':'legendary','Семь одинаковых':'legendary','Идеальное зеркало':'legendary','Двойной повтор':'legendary','Тройной повтор':'legendary','Парный повтор':'legendary','Почти все одинаковые':'legendary','Красивая комбинация':'epic','Круглый номер':'epic','Полная лесенка':'epic','Шесть подряд':'epic','Пять подряд':'epic','Четыре подряд':'epic','Зеркальные цифры':'rare','Полузеркало':'rare','Одинаковые блоки':'rare','Двойная пара':'rare','Две тройки':'rare','Тройной код':'uncommon','Двойной код':'uncommon','Семёрки в конце':'uncommon','Три нуля в конце':'uncommon','Тройка цифр':'uncommon','Пары подряд':'uncommon','Лесенка в конце':'uncommon','Обратная лесенка в конце':'uncommon','Год в конце':'uncommon','Обычный номер':'common','Секретный номер':'mythic'};
 </script>
 <script>
 'use strict';
