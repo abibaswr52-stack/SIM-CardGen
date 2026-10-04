@@ -581,7 +581,7 @@ const cu=get('simgen_uid'),guest=get('simgen_guest')==='1';
 window.__SK=cu?'simgen2_'+cu:'simgen2';
 let auth=null,mode='in',t0=Date.now();
 const bar=(p,t)=>{$('ldb').firstChild.style.width=p+'%';if(t)$('ldt').textContent=t};
-const hideLd=()=>setTimeout(()=>{$('ld').classList.add('off');setTimeout(()=>$('ld').remove(),600)},Math.max(0,1100-(Date.now()-t0)));
+const hideLd=()=>setTimeout(()=>{$('ld').classList.add('off');setTimeout(()=>$('ld').remove(),600)},Math.max(0,2400-(Date.now()-t0)));
 const showAu=()=>{$('au').classList.remove('off');hideLd()};
 const err=e=>{const c=(e&&e.code)||'',m={'auth/invalid-email':'Некорректный email','auth/missing-password':'Введите пароль','auth/invalid-credential':'Неверный email или пароль','auth/wrong-password':'Неверный email или пароль','auth/user-not-found':'Аккаунт не найден','auth/email-already-in-use':'Этот email уже зарегистрирован','auth/weak-password':'Пароль слишком короткий (минимум 6 символов)','auth/too-many-requests':'Слишком много попыток, подождите','auth/network-request-failed':'Нет соединения с сетью','auth/popup-closed-by-user':'Окно входа закрыто','auth/operation-not-allowed':'Этот способ входа не включён в Firebase'};$('aer').style.color='#ff6b8b';$('aer').textContent=m[c]||'Ошибка входа'+(c?' ('+c+')':'')};
 const done=u=>{set('simgen_uid',u.uid);if(!get('simgen_migrated')){set('simgen_migrated','1');if(!get('simgen2_'+u.uid)&&get('simgen2'))set('simgen2_'+u.uid,get('simgen2'))}del('simgen_guest');location.reload()};
@@ -1902,7 +1902,7 @@ try{conTick();if(aucSettle())renderInv()}catch(e){}
 'use strict';
 /* ================= НАСТРОЙКИ ================= */
 TITLES.set='Настройки';
-const GAME_VER='1.1';
+const GAME_VER='1.2';
 let resetArm=0,qAsk=0;
 const QDESC=['Без размытия, свечения и бесконечных анимаций, вдвое меньше частиц. Для слабых телефонов','Баланс красоты и плавности (рекомендуется)','Размытие, свечение, живой фон и больше частиц'];
 /* первый запуск: слабые устройства получают низкое качество автоматически */
