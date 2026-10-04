@@ -485,9 +485,126 @@ body.q0 #mnu.open .mi button.hasimg .mbig{animation:none}
 
 .mi button.wide.hasimg .mbig{object-fit:contain}
 .mi button[data-go="dev"].wide.hasimg .mbig,#mnu.open .mi button[data-go="dev"].wide.hasimg .mbig{animation:none}
+
+/* ===== ШАПКА: кольцо уровня + карточка баланса ===== */
+header{gap:10px;align-items:center}
+#lvl{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:9px}
+#lvl .lt{display:contents}
+#xpb{display:none}
+#lvl #lvN{--p:0;flex:none;width:46px;height:46px;padding:0;border:0;border-radius:50%;box-sizing:border-box;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;
+  font-size:16px;font-weight:800;line-height:1;color:#fff;letter-spacing:-.02em;font-variant-numeric:tabular-nums;
+  background:radial-gradient(circle closest-side,#0a0a12 0 76%,transparent 79%),conic-gradient(from 0deg,#2a2ff0,#7c78ff calc(var(--p)*1%),#1b1b2b 0);
+  box-shadow:0 0 16px rgba(88,84,255,.38),inset 0 0 0 1px rgba(255,255,255,.04)}
+#lvl #lvN::before{content:'УР';display:block;font-size:8px;font-weight:700;letter-spacing:.14em;color:#8d8aff;margin-bottom:2px}
+#lvl #lvN[data-l="4"]{font-size:13px}
+#lvl #lvN[data-l="5"]{font-size:11px}
+#lvX{display:flex;flex-direction:column;gap:2px;min-width:0;white-space:nowrap;line-height:1.1}
+#lvl #lvX b{font-size:13px;font-weight:700;color:#e8e8f4;font-variant-numeric:tabular-nums;padding:0;border:0;background:none}
+#lvl #lvX i{font-style:normal;font-size:10px;font-weight:500;color:#6c6c78}
+.bal{flex:0 1 auto;min-width:0;max-width:66%;white-space:nowrap;display:flex;flex-direction:column;align-items:flex-end;gap:1px;
+  padding:5px 12px 6px;border-radius:15px;background:linear-gradient(145deg,rgba(26,26,38,.95),rgba(10,10,15,.95));
+  border:1px solid rgba(255,255,255,.08);box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 6px 18px rgba(0,0,0,.4)}
+.bal #rub{display:block;max-width:100%;overflow:hidden;white-space:nowrap;font-size:20px;line-height:1.15;font-weight:800;color:#fff;letter-spacing:-.01em;padding-right:1px}
+.bal #usd{display:block;font-size:13px;line-height:1.2;font-weight:700;color:#ffc94d}
+.bal em{font-style:normal;font-weight:700;margin-left:.22em}
+.bal #rub em{color:#8d8aff;font-size:.82em}
+.bal #usd em{color:#3ddc84}
+.bal small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#lvX{flex:1 1 auto;overflow:hidden}
+#lvl #lvX b,#lvl #lvX i{display:block;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:360px){#lvl #lvN{width:42px;height:42px}#lvl{gap:7px}.bal{padding:5px 10px 6px}}
+.bal #usd{max-width:100%;overflow:hidden;white-space:nowrap}
 </style>
 </head>
 <body>
+<style>
+#ld,#au{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:radial-gradient(circle at 50% 38%,#16164a,#05050a 70%);transition:opacity .5s}
+#ld.off,#au.off{opacity:0;pointer-events:none}#au{z-index:9998;overflow-y:auto;user-select:text}
+#ld h1{margin:18px 0 4px;font-size:26px;letter-spacing:.14em}#ld p{margin:0 0 22px;color:#6b6b73;font-size:13px;min-height:1.2em}
+#ldb{width:min(260px,70vw);height:6px;border-radius:9px;background:#11111a;overflow:hidden}
+#ldb i{display:block;height:100%;width:0;border-radius:9px;background:linear-gradient(90deg,#1a1fe0,#9d90ff);box-shadow:0 0 12px #5d5aff;transition:width .35s}
+#ld{overflow:hidden}
+#ld::before{content:'';position:absolute;width:140vmax;height:140vmax;left:50%;top:50%;margin:-70vmax 0 0 -70vmax;background:conic-gradient(from 0deg,transparent 0 70%,rgba(93,90,255,.16) 85%,transparent);animation:ldspin 7s linear infinite}
+@keyframes ldspin{to{transform:rotate(360deg)}}
+.lw{position:relative;width:150px;height:150px;display:grid;place-items:center}
+.lw .rg{position:absolute;inset:0;border-radius:50%;border:1.5px dashed rgba(141,138,255,.45);animation:ldspin 9s linear infinite}
+.lw .r2{inset:14px;border:1.5px solid transparent;border-top-color:#ffc94d;border-bottom-color:#5d5aff;animation:ldspin 2.2s linear infinite reverse;filter:drop-shadow(0 0 6px #5d5aff)}
+.lw .orb{position:absolute;inset:0;animation:ldspin 3.4s linear infinite}
+.lw .orb i{position:absolute;left:50%;top:-4px;width:8px;height:8px;margin-left:-4px;border-radius:50%;background:#fff;box-shadow:0 0 12px 3px #8d8aff}
+.sc{position:relative;width:78px;height:78px;overflow:visible;filter:drop-shadow(0 0 14px rgba(93,90,255,.8))}
+.sc .cd{stroke-dasharray:100;stroke-dashoffset:100;animation:lddraw 1.5s ease forwards,ldglow 2s ease-in-out 1.5s infinite}
+.sc .ch{opacity:0;animation:ldfade .6s ease 1.1s forwards,ldchip 1.6s ease-in-out 1.7s infinite}
+.sc .sn{animation:ldscan 1.8s ease-in-out 1.4s infinite;opacity:0}
+@keyframes lddraw{to{stroke-dashoffset:0}}
+@keyframes ldfade{to{opacity:1}}
+@keyframes ldglow{50%{filter:drop-shadow(0 0 5px #8d8aff)}}
+@keyframes ldchip{50%{opacity:.55}}
+@keyframes ldscan{0%{transform:translateY(0);opacity:0}15%,85%{opacity:1}100%{transform:translateY(46px);opacity:0}}
+#ld h1{background:linear-gradient(90deg,#8d8aff,#fff,#ffc94d,#8d8aff);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:ldsh 3s linear infinite,ldin 1s ease both}
+@keyframes ldsh{to{background-position:-300% 0}}
+@keyframes ldin{from{opacity:0;letter-spacing:.5em}}
+#ldb{position:relative}
+#ldb i{position:relative;overflow:hidden}
+#ldb i::after{content:'';position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.7) 50%,transparent 70%);transform:translateX(-100%);animation:ldbs 1.2s ease-in-out infinite}
+@keyframes ldbs{to{transform:translateX(100%)}}
+#ldt{animation:ldtp 1.6s ease-in-out infinite}
+@keyframes ldtp{50%{opacity:.45}}
+.ac{width:min(360px,100%);padding:22px;border-radius:22px;border:1px solid rgba(255,255,255,.09);background:linear-gradient(145deg,rgba(26,26,38,.97),rgba(10,10,15,.97));box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.ac h2{margin:0 0 4px;font-size:22px}.ac small{color:#6b6b73}
+.ac .tb{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:16px 0 12px;padding:4px;border-radius:13px;background:#0a0a10}
+.ac .tb button,.ac .bt,.ac .gg{border:0;border-radius:10px;padding:11px;font-weight:700;font-size:14px;background:none;color:#8a8a96}
+.ac .tb button.on{background:#2a2ff0;color:#fff}
+.ac input{width:100%;margin:5px 0;padding:13px 14px;border-radius:12px;border:1px solid #26262c;background:#0a0a10;color:#fff;font:inherit;font-size:15px;outline:0;user-select:text}
+.ac input:focus{border-color:#5d5aff}
+.ac .bt{width:100%;margin-top:8px;background:linear-gradient(135deg,#2a2ff0,#6c68ff);color:#fff;font-size:15px}
+.ac .gg{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#222;font-size:15px}
+.ac .or{margin:12px 0;text-align:center;color:#55555f;font-size:12px}
+.ac .ln{display:block;margin:12px auto 0;background:none;border:0;color:#8d8aff;font-size:13px}
+#aer{min-height:18px;margin-top:8px;color:#ff6b8b;font-size:13px;text-align:center}
+</style>
+<div id="ld"><div class="lw"><div class="rg"></div><div class="rg r2"></div><div class="orb"><i></i></div>
+<svg class="sc" viewBox="0 0 64 64" fill="none" stroke-linejoin="round" stroke-linecap="round"><path class="cd" pathLength="100" stroke="#8d8aff" stroke-width="2.6" d="M16 6h22l12 12v36a4 4 0 0 1-4 4H16a4 4 0 0 1-4-4V10a4 4 0 0 1 4-4z"/><g class="ch" stroke="#ffc94d" stroke-width="2.4"><rect x="22" y="26" width="20" height="18" rx="3"/><path d="M22 35h20M32 26v18"/></g><path class="sn" d="M14 24h36" stroke="#fff" stroke-width="2.4"/></svg></div><h1>SIM GENERATOR</h1><p id="ldt">Загрузка…</p><div id="ldb"><i></i></div></div>
+<div id="au" class="off"><div class="ac"><h2>Добро пожаловать</h2><small>Войдите, чтобы прогресс сохранялся за вашим аккаунтом</small>
+<div class="tb"><button class="on" data-m="in">Вход</button><button data-m="up">Регистрация</button></div>
+<input id="aem" type="email" placeholder="Email" autocomplete="email"><input id="apw" type="password" placeholder="Пароль" autocomplete="current-password">
+<button class="bt" id="abt">Войти</button><div id="aer"></div><div class="or">или</div>
+<button class="gg" id="agg"><svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.5l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 0 1 0-9.4l-7.9-6.1a24 24 0 0 0 0 21.6l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>Продолжить с Google</button>
+<button class="ln" id="arp">Забыли пароль?</button><button class="ln" id="agu" style="color:#6b6b73">Играть без аккаунта</button></div></div>
+<script>
+(function(){
+/* ВСТАВЬТЕ СВОЙ КОНФИГ: Firebase Console → Project settings → Your apps → Web app */
+const FB={apiKey:'YOUR_API_KEY',authDomain:'YOUR_PROJECT.firebaseapp.com',projectId:'YOUR_PROJECT',appId:'YOUR_APP_ID'};
+const on=!/^YOUR_/.test(FB.apiKey),L=localStorage,$=id=>document.getElementById(id);
+const get=k=>{try{return L.getItem(k)}catch(e){return null}},set=(k,v)=>{try{L.setItem(k,v)}catch(e){}},del=k=>{try{L.removeItem(k)}catch(e){}};
+const cu=get('simgen_uid'),guest=get('simgen_guest')==='1';
+window.__SK=cu?'simgen2_'+cu:'simgen2';
+let auth=null,mode='in',t0=Date.now();
+const bar=(p,t)=>{$('ldb').firstChild.style.width=p+'%';if(t)$('ldt').textContent=t};
+const hideLd=()=>setTimeout(()=>{$('ld').classList.add('off');setTimeout(()=>$('ld').remove(),600)},Math.max(0,1100-(Date.now()-t0)));
+const showAu=()=>{$('au').classList.remove('off');hideLd()};
+const err=e=>{const c=(e&&e.code)||'',m={'auth/invalid-email':'Некорректный email','auth/missing-password':'Введите пароль','auth/invalid-credential':'Неверный email или пароль','auth/wrong-password':'Неверный email или пароль','auth/user-not-found':'Аккаунт не найден','auth/email-already-in-use':'Этот email уже зарегистрирован','auth/weak-password':'Пароль слишком короткий (минимум 6 символов)','auth/too-many-requests':'Слишком много попыток, подождите','auth/network-request-failed':'Нет соединения с сетью','auth/popup-closed-by-user':'Окно входа закрыто','auth/operation-not-allowed':'Этот способ входа не включён в Firebase'};$('aer').style.color='#ff6b8b';$('aer').textContent=m[c]||'Ошибка входа'+(c?' ('+c+')':'')};
+const done=u=>{set('simgen_uid',u.uid);if(!get('simgen_migrated')){set('simgen_migrated','1');if(!get('simgen2_'+u.uid)&&get('simgen2'))set('simgen2_'+u.uid,get('simgen2'))}del('simgen_guest');location.reload()};
+const load=src=>new Promise((ok,no)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=no;document.head.appendChild(s)});
+window.simAuth={on:on,user:()=>!!(auth&&auth.currentUser),email:()=>auth&&auth.currentUser?(auth.currentUser.email||'Google-аккаунт'):'Гостевой режим: прогресс хранится только на этом устройстве',
+ act:()=>{if(auth&&auth.currentUser){auth.signOut().then(()=>{del('simgen_uid');location.reload()})}else{del('simgen_guest');location.reload()}}};
+document.querySelectorAll('.tb button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll('.tb button').forEach(x=>x.classList.toggle('on',x===b));$('abt').textContent=mode==='in'?'Войти':'Создать аккаунт';$('apw').autocomplete=mode==='in'?'current-password':'new-password';$('aer').textContent=''});
+$('abt').onclick=()=>{const e=$('aem').value.trim(),p=$('apw').value;$('aer').textContent='';(mode==='in'?auth.signInWithEmailAndPassword(e,p):auth.createUserWithEmailAndPassword(e,p)).catch(err)};
+$('agg').onclick=()=>{$('aer').textContent='';const pr=new firebase.auth.GoogleAuthProvider();auth.signInWithPopup(pr).catch(e=>{if(e&&(e.code==='auth/popup-blocked'||e.code==='auth/operation-not-supported-in-this-environment'))auth.signInWithRedirect(pr);else err(e)})};
+$('arp').onclick=()=>{const e=$('aem').value.trim();if(!e){$('aer').textContent='Введите email выше';return}auth.sendPasswordResetEmail(e).then(()=>{$('aer').style.color='#3ddc84';$('aer').textContent='Письмо для сброса пароля отправлено'}).catch(err)};
+$('agu').onclick=()=>{set('simgen_guest','1');del('simgen_uid');location.reload()};
+if(!on||guest){bar(100,'Запуск…');hideLd();return}
+bar(15,'Загрузка…');
+(document.fonts&&document.fonts.ready||Promise.resolve()).then(()=>bar(40));
+load('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js').then(()=>load('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js')).then(()=>{
+ bar(70,'Проверка аккаунта…');firebase.initializeApp(FB);auth=firebase.auth();let first=1;
+ auth.onAuthStateChanged(u=>{
+  if(u){if(get('simgen_uid')!==u.uid)return done(u);if(first){first=0;bar(100,'Готово');hideLd()}}
+  else if(first){first=0;if(cu){del('simgen_uid');location.reload()}else{bar(100,'Готово');showAu()}}
+ });
+}).catch(()=>{if(cu){bar(100,'Офлайн-режим');hideLd()}else{bar(100);showAu();$('aer').textContent='Нет соединения с сетью'}});
+})();
+</script>
 <div id="app">
   <header>
     <button id="menu" aria-label="Меню"><i></i><i></i><i></i></button>
@@ -814,6 +931,7 @@ function roll(){
 <script>
 'use strict';
 /* ================= СОСТОЯНИЕ И СОХРАНЕНИЕ ================= */
+const SK=window.__SK||'simgen2';
 const DEF={rub:0,usd:0,inv:[],pack:0,n:0,leg:[],cty:'ru',up:{luck:0,inc:0,pas:0,myth:0,auto:0,slot:0,asell:0},boost:0,tk:0,tk2:0,tk3:0,
 lvl:1,xp:0,combo:0,snd:1,vol:1,vib:1,dev:0,daily:'',dStreak:0,dex:{},ach:{},stats:{drops:0,earned:0,best:0,bestCombo:0,crits:0},ts:Date.now()};
 let S=JSON.parse(JSON.stringify(DEF));
@@ -828,11 +946,11 @@ function mergeState(j){
   if(!Array.isArray(S.leg))S.leg=[];
 }
 try{
-  const raw=localStorage.getItem('simgen2');
+  const raw=localStorage.getItem(SK);
   if(raw)mergeState(JSON.parse(raw));
   else{const old=localStorage.getItem('simgen');if(old)mergeState(JSON.parse(old));}
 }catch(e){
-  try{const bk=localStorage.getItem('simgen2_bak');if(bk)mergeState(JSON.parse(bk));}catch(e2){}
+  try{const bk=localStorage.getItem(SK+'_bak');if(bk)mergeState(JSON.parse(bk));}catch(e2){}
 }
 if(!CT[S.cty])S.cty='ru';
 S.leg=S.leg.map(k=>/^\d/.test(k)?'ru'+k:k);
@@ -850,8 +968,8 @@ function saveNow(){
   saveT=0;saveDirty=0;S.ts=Date.now();
   try{
     const d=JSON.stringify(S);
-    if(Date.now()-bakT>60000){bakT=Date.now();localStorage.setItem('simgen2_bak',localStorage.getItem('simgen2')||'')}
-    localStorage.setItem('simgen2',d);
+    if(Date.now()-bakT>60000){bakT=Date.now();localStorage.setItem(SK+'_bak',localStorage.getItem(SK)||'')}
+    localStorage.setItem(SK,d);
   }catch(e){}
 }
 function save(){saveDirty=1;if(!saveT)saveT=setTimeout(()=>{if(saveDirty)saveNow()},3000)}
@@ -912,7 +1030,9 @@ const sfx={
  buy:()=>{tone(660,.07,'triangle',.08);tone(880,.1,'triangle',.08,.08)},
  err:()=>tone(160,.18,'sawtooth',.08),
  ach:()=>{[880,1108,1318,1760].forEach((x,i)=>tone(x,.14,'triangle',.07,i*.09))},
- lvl:()=>{[523,659,784,1046].forEach((x,i)=>tone(x,.12,'square',.06,i*.08))},
+ lvl:()=>{const n=Date.now();if(n-(sfx._lt||0)<700)return;sfx._lt=n;
+   /* мягкий колокольчик: синусы, плавная атака, лёгкий обертон; серия из нескольких уровней подряд звучит один раз */
+   [523,659,784,1046].forEach((x,i)=>{tone(x,.34,'sine',.045,i*.09);tone(x*2,.2,'sine',.01,i*.09)})},
  common:()=>{tone(420,.06,'triangle',.08,0,300);tone(620,.07,'triangle',.05,.04)},
  uncommon:()=>{tone(560,.08,'triangle',.08);tone(840,.1,'triangle',.07,.07)},
  rare:()=>{tone(660,.1,'triangle',.07);tone(990,.16,'triangle',.07,.1)},
@@ -988,10 +1108,17 @@ function checkAch(){
 <script>
 'use strict';
 /* ================= РЕНДЕР ================= */
-function renderBal(){$('rub').textContent=f(S.rub)+' ₽';$('usd').textContent=S.usd+' $'}
+function fitOne(el,max,min){if(!el)return;el.style.fontSize=max+'px';let fs=max;while(el.scrollWidth>el.clientWidth&&fs>min){fs-=.5;el.style.fontSize=fs+'px'}}
+function fitBal(){fitOne($('rub'),20,10);fitOne($('usd'),13,9)}
+const BIGU=[[1e24,' сптлн'],[1e21,' скстлн'],[1e18,' квнтлн'],[1e15,' квдрлн'],[1e12,' трлн'],[1e9,' млрд']];
+const fBig=n=>{const a=Math.abs(n);if(a>=1e27)return n.toExponential(1).replace('e+','e').replace('.0e','e');for(const[v,t]of BIGU)if(a>=v){const x=n/v;return (Math.abs(x)>=100?Math.round(x):x.toFixed(1).replace(/\.0$/,''))+t}return f(n)};
+const fUsd=n=>{const r=Math.round(n);return Math.abs(r)>=1e21?r.toExponential(2).replace('e+','e'):String(r).replace(/\B(?=(\d{3})+(?!\d))/g,'.')};
+function renderBal(){$('rub').innerHTML=fBig(S.rub)+'<em>₽</em>';$('usd').innerHTML=fUsd(S.usd)+'<em>$</em>';fitBal()}
+addEventListener('resize',fitBal);addEventListener('load',()=>{fitBal();try{document.fonts.ready.then(fitBal)}catch(e){}});
 function renderLvl(){
-  $('lvN').textContent='Ур. '+S.lvl;
-  $('lvX').textContent=f(S.xp)+' / '+f(xpNeed(S.lvl))+' XP';
+  $('lvN').textContent=S.lvl;$('lvN').dataset.l=String(S.lvl).length;$('lvN').style.setProperty('--p',Math.min(100,100*S.xp/xpNeed(S.lvl)).toFixed(1));
+  const xc=n=>n>=1e9?(n/1e9).toFixed(1).replace('.0','')+' млрд':n>=1e6?(n/1e6).toFixed(1).replace('.0','')+' млн':f(n);
+  $('lvX').innerHTML='<b>'+xc(S.xp)+' XP</b><i>из '+xc(xpNeed(S.lvl))+'</i>';fitBal();
   $('xpf').style.width=Math.min(100,100*S.xp/xpNeed(S.lvl))+'%';
 }
 function renderPack(){$('pack').textContent='Пакет: '+PACKS[S.pack].n;$('cty').textContent=CT[S.cty].fl+' '+CT[S.cty].n}
@@ -1788,7 +1915,9 @@ applyQ();
 $('mnu').addEventListener('click',e=>{if(e.target.closest('[data-go=set]'))qAsk=0},true);
 function setHTML(){
   const sw=(id,on,t,d)=>`<div class="sr"><div><b>${t}</b><small>${d}</small></div><button class="sw${on?' on':''}" data-st="${id}" aria-label="${t}"></button></div>`;
+  const A=window.simAuth||{};
   return `<div class="st">`+
+    (A.on?`<div class="sr col"><div><b>Аккаунт</b><small>${A.email()}</small></div><button class="btn${A.user()?' red':''}" data-st="acct">${A.user()?'Выйти из аккаунта':'Войти или создать аккаунт'}</button></div>`:'')+
     sw('snd',S.snd,'Звук','Эффекты при дропе, покупках и кликах')+
     `<div class="sr col"><div><b>Громкость</b><small id="volT">${Math.round((S.vol===undefined?1:S.vol)*100)}%</small></div><input type="range" id="vol" min="0" max="100" step="5" value="${Math.round((S.vol===undefined?1:S.vol)*100)}"></div>`+
     sw('vib',S.vib!==0,'Вибрация','Отклик на эпические и выше карты (если телефон поддерживает)')+
@@ -1828,6 +1957,7 @@ $('sL').addEventListener('click',e=>{
   else if(k==='qok'){S.q=2;qAsk=0;applyQ();save();renderScr();sfx.buy()}
   else if(k==='qno'){qAsk=0;renderScr();sfx.tick()}
   else if(k==='snd'){S.snd=S.snd?0:1;$('snd').textContent=S.snd?'🔊':'🔇';save();renderScr();if(S.snd)sfx.coin()}
+  else if(k==='acct'){window.simAuth&&simAuth.act();return}
   else if(k==='vib'){S.vib=S.vib===0?1:0;save();renderScr();try{if(S.vib&&navigator.vibrate)navigator.vibrate(40)}catch(err){}sfx.tick()}
   else if(k==='exp'){save();$('expT').value=encSave();sfx.tick()}
   else if(k==='copy'){
@@ -1857,7 +1987,7 @@ $('sL').addEventListener('click',e=>{
       setTimeout(()=>{resetArm=0;const r=$('resetB');if(r)r.textContent='Сбросить всё'},4000);
     }else{
       S=JSON.parse(JSON.stringify(DEF));S.ts=Date.now();saveNow();
-      try{localStorage.removeItem('simgen2_bak')}catch(err){}
+      try{localStorage.removeItem(SK+'_bak')}catch(err){}
       location.reload();
     }
   }
